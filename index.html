@@ -501,4 +501,887 @@
   }
 
   /* Empty state */
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--tex
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state-text { font-size: 14px; }
+
+  /* Separator */
+  .sep { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .dash-grid { grid-template-columns: 1fr; }
+    .countdown-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding: 20px 16px; }
+    .mobile-toggle { display: flex; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .countdown-grid { grid-template-columns: 1fr; }
+    .topbar { margin-top: 44px; }
+  }
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-value { font-size: 28px; }
+  }
+
+  /* Glow accent line on active task card */
+  .focus-card {
+    border-color: rgba(0,255,163,0.25);
+    box-shadow: 0 0 0 1px rgba(0,255,163,0.08), inset 0 0 60px rgba(0,255,163,0.03);
+  }
+
+  /* Priority select colors */
+  option { background: #161b22; }
+
+  .tg-send-row { display: flex; gap: 10px; }
+  .tg-send-row .input-field { flex: 1; }
+
+  /* Tab bar inside pages */
+  .tab-bar { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 20px; }
+  .tab-btn {
+    flex: 1; padding: 8px 14px; border-radius: 6px; border: none;
+    background: transparent; color: var(--text2); font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--surface3); color: var(--text); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Mobile Toggle -->
+<button class="mobile-toggle" id="mobileToggle">☰</button>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">Focus<span>Flow</span></div>
+        <div class="logo-sub">v1.0 · productivity OS</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="navigate('tasks')">
+      <span class="nav-icon">✅</span> Tasks
+      <span class="nav-badge" id="taskBadge">0</span>
+    </div>
+    <div class="nav-item" onclick="navigate('countdown')">
+      <span class="nav-icon">⏱️</span> Countdown
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Connect</div>
+    <div class="nav-item" onclick="navigate('telegram')">
+      <span class="nav-icon">✈️</span> Telegram
+    </div>
+    <div class="nav-item" onclick="navigate('completed')">
+      <span class="nav-icon">🏆</span> Completed
+      <span class="nav-badge" id="completedBadge">0</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="theme-toggle-wrap">
+      <span class="theme-icon" id="themeIcon">🌙</span>
+      <span class="theme-toggle-label" id="themeLabel">Dark Mode</span>
+      <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></div>
+    </div>
+    <div class="tg-status">
+      <div class="tg-dot" id="tgDot" style="background:var(--text3);box-shadow:none;"></div>
+      <div class="tg-info">
+        <div class="tg-label">Telegram</div>
+        <div class="tg-name" id="tgStatusText">Not connected</div>
+      </div>
+      <span style="font-size:20px;">✈️</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Dashboard Page -->
+  <div class="page active" id="page-dashboard">
+    <div class="topbar">
+      <div class="page-title">Good focus, <span id="greetName">friend</span> 👋</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="openModal('addTaskModal')">＋ New Task</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card cyan">
+        <div class="stat-label">Active Tasks</div>
+        <div class="stat-value" id="statActive">0</div>
+        <div class="stat-sub">in progress</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" id="statCompleted">0</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-label">Countdowns</div>
+        <div class="stat-value" id="statCountdowns">0</div>
+        <div class="stat-sub">running</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Reminders</div>
+        <div class="stat-value" id="statReminders">0</div>
+        <div class="stat-sub">via telegram</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="dash-left">
+        <div class="card focus-card">
+          <div class="card-title"><div class="card-title-dot"></div> Today's Focus</div>
+          <div id="dashTaskList"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No tasks yet. Create one!</div></div></div>
+          <div class="sep"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:13px;color:var(--text2);">Progress</span>
+            <span style="font-size:12px;color:var(--accent);font-family:'DM Mono',monospace;" id="progressLabel">0%</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot" style="background:var(--accent2);box-shadow:0 0 8px var(--accent2);"></div> Weekly Activity</div>
+          <div class="activity-chart" id="activityChart"></div>
+        </div>
+      </div>
+
+      <div class="dash-right">
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot" style="background:var(--warn);box-shadow:0 0 8px var(--warn);"></div> Next Deadline</div>
+          <div id="nextDeadline"><div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-text">No deadlines set</div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot" style="background:var(--accent3);box-shadow:0 0 8px var(--accent3);"></div> Quick Reminder</div>
+          <div class="tg-connect-form">
+            <div class="input-group">
+              <label class="input-label">Message</label>
+              <input type="text" class="input-field" id="quickReminderMsg" placeholder="Remind me to..."/>
+            </div>
+            <div class="input-group">
+              <label class="input-label">When</label>
+              <input type="datetime-local" class="input-field" id="quickReminderTime"/>
+            </div>
+            <button class="btn btn-success" onclick="sendQuickReminder()" style="width:100%">✈️ Send via Telegram</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks Page -->
+  <div class="page" id="page-tasks">
+    <div class="topbar">
+      <div class="page-title">Task <span>Manager</span></div>
+      <div class="topbar-actions">
+        <select class="input-field" id="taskFilter" onchange="renderTasks()" style="width:auto;padding:10px 14px;">
+          <option value="all">All Tasks</option>
+          <option value="high">High Priority</option>
+          <option value="medium">Medium Priority</option>
+          <option value="low">Low Priority</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('addTaskModal')">＋ Add Task</button>
+      </div>
+    </div>
+    <div class="card">
+      <div id="taskList"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No tasks yet. Hit "Add Task"!</div></div></div>
+    </div>
+  </div>
+
+  <!-- Countdown Page -->
+  <div class="page" id="page-countdown">
+    <div class="topbar">
+      <div class="page-title">Countdown <span>System</span></div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="openModal('addCountdownModal')">＋ Add Countdown</button>
+      </div>
+    </div>
+    <div class="countdown-grid" id="countdownGrid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">⏱️</div><div class="empty-state-text">No countdowns yet.</div></div>
+    </div>
+  </div>
+
+  <!-- Telegram Page -->
+  <div class="page" id="page-telegram">
+    <div class="topbar">
+      <div class="page-title">Telegram <span>Integration</span></div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTgTab(this,'tg-setup')">⚙️ Setup</button>
+      <button class="tab-btn" onclick="switchTgTab(this,'tg-send')">📤 Send</button>
+      <button class="tab-btn" onclick="switchTgTab(this,'tg-reminders')">🔔 Reminders</button>
+    </div>
+
+    <div id="tg-setup">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot"></div> Bot Configuration</div>
+          <div class="tg-connect-form">
+            <div class="input-group">
+              <label class="input-label">Bot Token</label>
+              <input type="password" class="input-field" id="botToken" placeholder="123456:ABC-DEF..."/>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Chat ID</label>
+              <input type="text" class="input-field" id="chatId" placeholder="Your Telegram Chat ID"/>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Display Name</label>
+              <input type="text" class="input-field" id="tgDisplayName" placeholder="@username"/>
+            </div>
+            <button class="btn btn-primary" onclick="connectTelegram()" style="width:100%">🔗 Connect Bot</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot" style="background:var(--accent3);box-shadow:0 0 8px var(--accent3);"></div> Connection Status</div>
+          <div id="tgStatusCard">
+            <div class="empty-state">
+              <div class="empty-state-icon">🔌</div>
+              <div class="empty-state-text">Not connected yet.<br>Enter your bot token to start.</div>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <div class="card-title" style="margin-bottom:12px;"><div class="card-title-dot" style="background:var(--warn);box-shadow:0 0 8px var(--warn);"></div> How to get your Bot Token</div>
+            <ol style="color:var(--text2);font-size:13px;padding-left:18px;line-height:1.8;">
+              <li>Open Telegram, search <code style="background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--accent);">@BotFather</code></li>
+              <li>Send <code style="background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--accent);">/newbot</code></li>
+              <li>Follow instructions to get your token</li>
+              <li>For Chat ID: message your bot, then visit<br><code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent);font-size:11px;">api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tg-send" style="display:none;">
+      <div class="card">
+        <div class="card-title"><div class="card-title-dot"></div> Send Message</div>
+        <div class="tg-connect-form">
+          <div class="input-group">
+            <label class="input-label">Message</label>
+            <textarea class="input-field" id="tgMessage" placeholder="Type your message..."></textarea>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Schedule (optional)</label>
+            <input type="datetime-local" class="input-field" id="tgScheduleTime"/>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="sendTgMessage(false)" style="flex:1">📤 Send Now</button>
+            <button class="btn btn-ghost" onclick="sendTgMessage(true)" style="flex:1">🕐 Schedule</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tg-reminders" style="display:none;">
+      <div class="card">
+        <div class="card-title"><div class="card-title-dot"></div> Scheduled Reminders</div>
+        <div id="reminderList"><div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-text">No reminders scheduled.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completed Page -->
+  <div class="page" id="page-completed">
+    <div class="topbar">
+      <div class="page-title">Completed <span>Tasks</span></div>
+      <div class="topbar-actions">
+        <button class="btn btn-danger btn-sm" onclick="clearCompleted()">🗑️ Clear All</button>
+      </div>
+    </div>
+    <div class="card">
+      <div id="completedList"><div class="empty-state"><div class="empty-state-icon">🏆</div><div class="empty-state-text">No completed tasks yet. Keep going!</div></div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="addTaskModal" onclick="closeModalOutside(event,'addTaskModal')">
+  <div class="modal">
+    <div class="modal-title">✅ New Task</div>
+    <div class="tg-connect-form">
+      <div class="input-group">
+        <label class="input-label">Task Name</label>
+        <input type="text" class="input-field" id="newTaskName" placeholder="What needs to be done?"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="input-group">
+          <label class="input-label">Priority</label>
+          <select class="input-field" id="newTaskPriority">
+            <option value="high">🔴 High</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="low">🟢 Low</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Category</label>
+          <input type="text" class="input-field" id="newTaskCat" placeholder="e.g. Work, Study"/>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Due Date & Time</label>
+        <input type="datetime-local" class="input-field" id="newTaskDue"/>
+      </div>
+      <div class="input-group" style="flex-direction:row;align-items:center;gap:10px;">
+        <input type="checkbox" id="newTaskTg" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"/>
+        <label for="newTaskTg" class="input-label" style="margin:0;cursor:pointer;">Send Telegram Reminder</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addTaskModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Countdown Modal -->
+<div class="modal-overlay" id="addCountdownModal" onclick="closeModalOutside(event,'addCountdownModal')">
+  <div class="modal">
+    <div class="modal-title">⏱️ New Countdown</div>
+    <div class="tg-connect-form">
+      <div class="input-group">
+        <label class="input-label">Event Name</label>
+        <input type="text" class="input-field" id="cdName" placeholder="e.g. Project Deadline"/>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Target Date & Time</label>
+        <input type="datetime-local" class="input-field" id="cdDate"/>
+      </div>
+      <div class="input-group" style="flex-direction:row;align-items:center;gap:10px;">
+        <input type="checkbox" id="cdTg" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"/>
+        <label for="cdTg" class="input-label" style="margin:0;cursor:pointer;">Send Telegram Reminder</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addCountdownModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addCountdown()">Start Countdown</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ===================== STATE =====================
+let state = {
+  tasks: [],
+  countdowns: [],
+  reminders: [],
+  completed: [],
+  tg: { token: '', chatId: '', name: '', connected: false },
+  weekActivity: [2,5,3,7,4,6,8]
+};
+
+function saveState() {
+  localStorage.setItem('focusflow_state', JSON.stringify(state));
+}
+function loadState() {
+  const s = localStorage.getItem('focusflow_state');
+  if (s) state = { ...state, ...JSON.parse(s) };
+}
+
+// ===================== NAVIGATION =====================
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(page)) n.classList.add('active');
+  });
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+  renderAll();
+}
+
+document.getElementById('mobileToggle').onclick = () => {
+  document.getElementById('sidebar').classList.toggle('open');
+};
+
+// ===================== MODAL =====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if (e.target.classList.contains('modal-overlay')) closeModal(id); }
+
+// ===================== TOAST =====================
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]}</span> ${msg}`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => {
+    t.style.animation = 'slideOut 0.3s ease forwards';
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
+}
+
+// ===================== TASKS =====================
+function addTask() {
+  const name = document.getElementById('newTaskName').value.trim();
+  if (!name) { toast('Please enter a task name', 'error'); return; }
+  const task = {
+    id: Date.now(), name,
+    priority: document.getElementById('newTaskPriority').value,
+    category: document.getElementById('newTaskCat').value.trim() || 'General',
+    due: document.getElementById('newTaskDue').value,
+    tg: document.getElementById('newTaskTg').checked,
+    done: false,
+    created: new Date().toISOString()
+  };
+  state.tasks.unshift(task);
+  if (task.tg && state.tg.connected) {
+    scheduleReminder(`📌 Task: ${task.name}`, task.due || null, task.id);
+  }
+  state.weekActivity[6]++;
+  saveState();
+  closeModal('addTaskModal');
+  document.getElementById('newTaskName').value = '';
+  document.getElementById('newTaskCat').value = '';
+  document.getElementById('newTaskDue').value = '';
+  document.getElementById('newTaskTg').checked = false;
+  renderAll();
+  toast(`Task "${task.name}" added!`, 'success');
+}
+
+function toggleTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+  if (!task.done) {
+    task.done = true;
+    state.completed.unshift({ ...task, completedAt: new Date().toISOString() });
+    state.tasks = state.tasks.filter(t => t.id !== id);
+    toast(`"${task.name}" completed! 🎉`, 'success');
+  }
+  saveState(); renderAll();
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  saveState(); renderAll();
+  toast('Task deleted', 'error');
+}
+
+function renderTaskItem(task, mini = false) {
+  const pClass = `tag-priority-${task.priority}`;
+  const pLabel = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+  const dueStr = task.due ? new Date(task.due).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  return `
+    <div class="task-item" id="task-${task.id}">
+      <div class="task-check ${task.done?'done':''}" onclick="toggleTask(${task.id})">${task.done?'✓':''}</div>
+      <div class="task-body">
+        <div class="task-title-text ${task.done?'done':''}">${task.name}</div>
+        <div class="task-meta">
+          <span class="tag ${pClass}">${pLabel}</span>
+          <span class="tag tag-cat">📁 ${task.category}</span>
+          ${task.tg ? '<span class="tag tag-tg">✈️ TG</span>' : ''}
+          ${dueStr ? `<span class="task-time">⏰ ${dueStr}</span>` : ''}
+        </div>
+      </div>
+      ${!mini ? `<div class="task-actions">
+        <button class="icon-btn red" onclick="deleteTask(${task.id})">🗑</button>
+      </div>` : ''}
+    </div>`;
+}
+
+function renderTasks() {
+  const filter = document.getElementById('taskFilter')?.value || 'all';
+  let tasks = state.tasks;
+  if (filter !== 'all') tasks = tasks.filter(t => t.priority === filter);
+  const el = document.getElementById('taskList');
+  if (!el) return;
+  el.innerHTML = tasks.length ? tasks.map(t => renderTaskItem(t)).join('') :
+    `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No tasks found.</div></div>`;
+}
+
+function renderDashTasks() {
+  const el = document.getElementById('dashTaskList');
+  if (!el) return;
+  const tasks = state.tasks.slice(0,5);
+  el.innerHTML = tasks.length ? tasks.map(t => renderTaskItem(t, true)).join('') :
+    `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No tasks yet. Create one!</div></div>`;
+  const total = state.tasks.length + state.completed.length;
+  const pct = total ? Math.round(state.completed.length / total * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '%';
+}
+
+// ===================== COUNTDOWNS =====================
+function addCountdown() {
+  const name = document.getElementById('cdName').value.trim();
+  const date = document.getElementById('cdDate').value;
+  if (!name || !date) { toast('Please fill all fields', 'error'); return; }
+  const cd = { id: Date.now(), name, date, tg: document.getElementById('cdTg').checked };
+  state.countdowns.push(cd);
+  if (cd.tg && state.tg.connected) {
+    scheduleReminder(`⏱️ Countdown: ${cd.name}`, cd.date, cd.id);
+  }
+  saveState();
+  closeModal('addCountdownModal');
+  document.getElementById('cdName').value = '';
+  document.getElementById('cdDate').value = '';
+  document.getElementById('cdTg').checked = false;
+  renderAll();
+  toast(`Countdown "${name}" started!`, 'success');
+}
+
+function deleteCountdown(id) {
+  state.countdowns = state.countdowns.filter(c => c.id !== id);
+  saveState(); renderAll();
+}
+
+function getTimeLeft(date) {
+  const diff = new Date(date) - new Date();
+  if (diff <= 0) return null;
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return { d, h, m, s };
+}
+
+function renderCountdowns() {
+  const el = document.getElementById('countdownGrid');
+  if (!el) return;
+  if (!state.countdowns.length) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">⏱️</div><div class="empty-state-text">No countdowns yet. Add one!</div></div>`;
+    return;
+  }
+  el.innerHTML = state.countdowns.map(cd => {
+    const tl = getTimeLeft(cd.date);
+    if (!tl) return `
+      <div class="countdown-card">
+        <div class="countdown-label">Countdown</div>
+        <div class="countdown-name">${cd.name}</div>
+        <div style="color:var(--accent3);font-weight:700;font-size:16px;">✅ Time's up!</div>
+        <div class="countdown-footer">
+          <button class="btn btn-danger btn-sm" onclick="deleteCountdown(${cd.id})">Remove</button>
+        </div>
+      </div>`;
+    return `
+      <div class="countdown-card">
+        <div class="countdown-label">⏱ Counting Down</div>
+        <div class="countdown-name">${cd.name}</div>
+        <div class="countdown-display">
+          <div class="cd-unit"><div class="cd-num" id="cd-d-${cd.id}">${String(tl.d).padStart(2,'0')}</div><div class="cd-label">Days</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-h-${cd.id}">${String(tl.h).padStart(2,'0')}</div><div class="cd-label">Hours</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-m-${cd.id}">${String(tl.m).padStart(2,'0')}</div><div class="cd-label">Mins</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit"><div class="cd-num" id="cd-s-${cd.id}">${String(tl.s).padStart(2,'0')}</div><div class="cd-label">Secs</div></div>
+        </div>
+        <div class="countdown-footer">
+          ${cd.tg ? '<span class="tag tag-tg cd-badge">✈️ TG</span>' : ''}
+          <button class="icon-btn red" onclick="deleteCountdown(${cd.id})" style="margin-left:auto">🗑</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function tickCountdowns() {
+  state.countdowns.forEach(cd => {
+    const tl = getTimeLeft(cd.date);
+    if (!tl) return;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val).padStart(2,'0'); };
+    set(`cd-d-${cd.id}`, tl.d);
+    set(`cd-h-${cd.id}`, tl.h);
+    set(`cd-m-${cd.id}`, tl.m);
+    set(`cd-s-${cd.id}`, tl.s);
+  });
+}
+
+// ===================== TELEGRAM =====================
+function connectTelegram() {
+  const token = document.getElementById('botToken').value.trim();
+  const chatId = document.getElementById('chatId').value.trim();
+  const name = document.getElementById('tgDisplayName').value.trim();
+  if (!token || !chatId) { toast('Token and Chat ID required', 'error'); return; }
+  state.tg = { token, chatId, name: name || '@user', connected: true };
+  saveState();
+  updateTgUI();
+  toast('Telegram connected! 🎉', 'success');
+  // Test message
+  sendTelegramMsg('👋 FocusFlow connected! Your reminders will arrive here.');
+}
+
+function updateTgUI() {
+  const dot = document.getElementById('tgDot');
+  const text = document.getElementById('tgStatusText');
+  if (state.tg.connected) {
+    dot.style.background = 'var(--accent3)';
+    dot.style.boxShadow = '0 0 8px var(--accent3)';
+    text.textContent = state.tg.name || 'Connected';
+    document.getElementById('tgStatusCard').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;gap:12px;align-items:center;background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+          <div style="font-size:28px;">✈️</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:3px;">${state.tg.name}</div>
+            <div style="font-size:12px;color:var(--accent3);font-family:'DM Mono',monospace;">● Connected</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);">Chat ID: <code style="color:var(--accent);background:var(--surface2);padding:2px 8px;border-radius:4px;">${state.tg.chatId}</code></div>
+        <button class="btn btn-danger btn-sm" onclick="disconnectTg()">Disconnect</button>
+      </div>`;
+  } else {
+    dot.style.background = 'var(--text3)';
+    dot.style.boxShadow = 'none';
+    text.textContent = 'Not connected';
+  }
+}
+
+function disconnectTg() {
+  state.tg = { token: '', chatId: '', name: '', connected: false };
+  saveState(); updateTgUI();
+  toast('Telegram disconnected', 'info');
+}
+
+async function sendTelegramMsg(msg) {
+  if (!state.tg.connected) { toast('Connect Telegram first!', 'error'); return false; }
+  const url = `https://api.telegram.org/bot${state.tg.token}/sendMessage`;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: state.tg.chatId, text: msg, parse_mode: 'HTML' })
+    });
+    const data = await res.json();
+    return data.ok;
+  } catch (e) { return false; }
+}
+
+async function sendTgMessage(scheduled) {
+  const msg = document.getElementById('tgMessage').value.trim();
+  if (!msg) { toast('Enter a message', 'error'); return; }
+  if (!state.tg.connected) { toast('Connect Telegram first!', 'error'); return; }
+  if (scheduled) {
+    const time = document.getElementById('tgScheduleTime').value;
+    if (!time) { toast('Set a schedule time', 'error'); return; }
+    scheduleReminder(msg, time, Date.now());
+    toast('Reminder scheduled! 🕐', 'success');
+  } else {
+    const ok = await sendTelegramMsg(msg);
+    if (ok) toast('Message sent! ✈️', 'success');
+    else toast('Failed to send. Check your credentials.', 'error');
+  }
+  document.getElementById('tgMessage').value = '';
+}
+
+function scheduleReminder(msg, time, taskId) {
+  if (!time) return;
+  const reminder = { id: Date.now(), msg, time, taskId, sent: false };
+  state.reminders.push(reminder);
+  saveState();
+  renderReminders();
+  const delay = new Date(time) - new Date();
+  if (delay > 0) {
+    setTimeout(async () => {
+      const ok = await sendTelegramMsg(`🔔 <b>FocusFlow Reminder</b>\n${msg}`);
+      const r = state.reminders.find(r => r.id === reminder.id);
+      if (r) r.sent = true;
+      saveState(); renderReminders();
+      if (ok) toast(`Reminder sent: ${msg.slice(0,30)}...`, 'success');
+    }, delay);
+  }
+}
+
+async function sendQuickReminder() {
+  const msg = document.getElementById('quickReminderMsg').value.trim();
+  const time = document.getElementById('quickReminderTime').value;
+  if (!msg) { toast('Enter a message', 'error'); return; }
+  if (!state.tg.connected) { toast('Connect Telegram first in the Telegram tab!', 'error'); return; }
+  if (time) {
+    scheduleReminder(msg, time, Date.now());
+    toast('Reminder scheduled! 🕐', 'success');
+  } else {
+    const ok = await sendTelegramMsg(`🔔 ${msg}`);
+    if (ok) toast('Reminder sent! ✈️', 'success');
+    else toast('Failed. Check Telegram settings.', 'error');
+  }
+  document.getElementById('quickReminderMsg').value = '';
+  document.getElementById('quickReminderTime').value = '';
+}
+
+function renderReminders() {
+  const el = document.getElementById('reminderList');
+  if (!el) return;
+  if (!state.reminders.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-text">No reminders scheduled.</div></div>`;
+    return;
+  }
+  el.innerHTML = state.reminders.slice().reverse().map(r => `
+    <div class="reminder-item">
+      <div class="reminder-icon">${r.sent ? '✅' : '🔔'}</div>
+      <div class="reminder-body">
+        <div class="reminder-title-text">${r.msg}</div>
+        <div class="reminder-time">⏰ ${new Date(r.time).toLocaleString()}</div>
+      </div>
+      ${r.sent ? '<div class="reminder-sent">● Sent</div>' : '<div style="font-size:11px;color:var(--warn);font-family:\'DM Mono\',monospace;">Pending</div>'}
+    </div>`).join('');
+}
+
+// ===================== COMPLETED =====================
+function renderCompleted() {
+  const el = document.getElementById('completedList');
+  if (!el) return;
+  el.innerHTML = state.completed.length ? state.completed.map(t => `
+    <div class="completed-item">
+      <div class="completed-check">✓</div>
+      <div class="task-body">
+        <div class="completed-title">${t.name}</div>
+        <div class="completed-meta">✅ ${new Date(t.completedAt).toLocaleString()} · 📁 ${t.category}</div>
+      </div>
+      <span class="tag tag-priority-${t.priority}">${t.priority}</span>
+    </div>`).join('') :
+    `<div class="empty-state"><div class="empty-state-icon">🏆</div><div class="empty-state-text">No completed tasks yet. Keep going!</div></div>`;
+}
+
+function clearCompleted() {
+  if (!state.completed.length) return;
+  state.completed = [];
+  saveState(); renderAll();
+  toast('Cleared completed tasks', 'info');
+}
+
+// ===================== NEXT DEADLINE =====================
+function renderNextDeadline() {
+  const el = document.getElementById('nextDeadline');
+  if (!el) return;
+  const tasks = state.tasks.filter(t => t.due).sort((a,b) => new Date(a.due)-new Date(b.due));
+  if (!tasks.length) { el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-text">No deadlines set</div></div>`; return; }
+  const t = tasks[0];
+  const tl = getTimeLeft(t.due);
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:16px;font-weight:700;">${t.name}</div>
+      <div style="display:flex;gap:10px;">
+        <span class="tag tag-priority-${t.priority}">${t.priority}</span>
+        <span class="tag tag-cat">📁 ${t.category}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;">📅 ${new Date(t.due).toLocaleString()}</div>
+      ${tl ? `<div style="font-size:22px;font-weight:800;color:var(--warn);font-family:'DM Mono',monospace;">${tl.d}d ${tl.h}h ${tl.m}m left</div>` : '<div style="color:var(--danger);font-weight:700;">⚠️ Overdue!</div>'}
+    </div>`;
+}
+
+// ===================== ACTIVITY CHART =====================
+function renderActivityChart() {
+  const el = document.getElementById('activityChart');
+  if (!el) return;
+  const days = ['M','T','W','T','F','S','S'];
+  const max = Math.max(...state.weekActivity, 1);
+  el.innerHTML = state.weekActivity.map((v, i) => `
+    <div class="activity-bar-wrap">
+      <div class="activity-bar" style="height:${Math.max(8, Math.round(v/max*72))}px;" title="${v} tasks"></div>
+      <div class="activity-day">${days[i]}</div>
+    </div>`).join('');
+}
+
+// ===================== STATS =====================
+function renderStats() {
+  document.getElementById('statActive').textContent = state.tasks.length;
+  document.getElementById('statCompleted').textContent = state.completed.length;
+  document.getElementById('statCountdowns').textContent = state.countdowns.length;
+  document.getElementById('statReminders').textContent = state.reminders.length;
+  document.getElementById('taskBadge').textContent = state.tasks.length;
+  document.getElementById('completedBadge').textContent = state.completed.length;
+}
+
+// ===================== TG TABS =====================
+function switchTgTab(btn, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['tg-setup','tg-send','tg-reminders'].forEach(t => {
+    const el = document.getElementById(t);
+    if (el) el.style.display = t === id ? 'block' : 'none';
+  });
+  if (id === 'tg-reminders') renderReminders();
+}
+
+// ===================== THEME =====================
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('focusflow_theme', isLight ? 'light' : 'dark');
+  updateThemeUI(isLight);
+}
+
+function updateThemeUI(isLight) {
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+  if (label) label.textContent = isLight ? 'Light Mode' : 'Dark Mode';
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('focusflow_theme');
+  const isLight = saved === 'light';
+  if (isLight) document.body.classList.add('light');
+  updateThemeUI(isLight);
+}
+
+// ===================== GREETING =====================
+function setGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  const title = document.querySelector('#page-dashboard .page-title');
+  if (title) title.innerHTML = `Good ${greet}, <span>${state.tg.name ? state.tg.name.replace('@','') : 'friend'}</span> 👋`;
+}
+
+// ===================== RENDER ALL =====================
+function renderAll() {
+  renderStats();
+  renderDashTasks();
+  renderTasks();
+  renderCountdowns();
+  renderCompleted();
+  renderReminders();
+  renderNextDeadline();
+  renderActivityChart();
+  updateTgUI();
+  setGreeting();
+}
+
+// ===================== INIT =====================
+loadState();
+loadTheme();
+renderAll();
+setInterval(tickCountdowns, 1000);
+setInterval(renderNextDeadline, 60000);
+
+// Keyboard shortcut: N = new task
+document.addEventListener('keydown', e => {
+  if (e.key === 'n' && !e.target.matches('input,textarea,select')) openModal('addTaskModal');
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
+// Preload quick reminder time to now+1hr
+const qrt = document.getElementById('quickReminderTime');
+if (qrt) {
+  const now = new Date(); now.setHours(now.getHours()+1);
+  qrt.value = now.toISOString().slice(0,16);
+}
+</script>
+</body>
+</html>
