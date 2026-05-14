@@ -39,6 +39,16 @@ Tap the button below to open your dashboard 👇`
 
 // Start server
 const PORT = process.env.PORT || 3000;
+// Keep Render awake
+const RENDER_URL = process.env.RENDER_URL;
+setInterval(async () => {
+  try {
+    await fetch(RENDER_URL);
+    console.log("Keeping awake...");
+  } catch (e) {
+    console.log("Ping failed");
+  }
+}, 840000); // ping every 14 minutes
 app.listen(PORT, () => {
   console.log(`FocusFlow bot running on port ${PORT}`);
   setWebhook();
